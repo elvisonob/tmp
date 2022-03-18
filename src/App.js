@@ -1,35 +1,58 @@
-import { Route, Routes } from 'react-router-dom';
-import './App.css';
-import Products from './Products';
+import Header from './components/Header'
+import Main from './components/Main'
+import Basket from './components/Basket'
+import data from './Data'
+import { useState } from 'react'
 
-function App() {
-  const products = [
-    {
-      name: 'iPhone 4',
-      amount: "£200",
-      image: "https://images.unsplash.com/photo-1607936854279-55e8a4c64888?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8aXBob25lJTIwMTJ8ZW58MHx8MHx8&w=1000&q=80",
-      color: 'silver'
-    },
-    {
-      name: 'iPhone 5',
-      amount: "£400",
-      image: "https://images.unsplash.com/photo-1603791239531-1dda55e194a6?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8YXBwbGUlMjBpcGhvbmV8ZW58MHx8MHx8&w=1000&q=80",
-      color: 'silver'
+
+const App = () => {
+  const {products} = data
+
+  //Right here, I am declaring a useState variable which has an array of two elements. 
+  //The first element is the current state and the second is used to update the state
+  const [cartItems, setCartItems]= useState([])
+  
+
+  const adding=(product)=>{
+    //I am using the find method to search the cart array to make sure the given argument's id matches or it is found.
+    const isAvailable= cartItems.find(item=>item.id===product.id)
+    if(isAvailable) {
+      //If the arguments are found or matches, then i am using the map function to create another copy of the array and using the 'setCartItems' to update the array
+      //and increment the quantity by 1.
+      setCartItems(cartItems.map(item=>item.id===product.id ? {...isAvailable, qty:isAvailable.qty +1} : item))
     }
-  ]
+     else {
+       //if it doesn't matches, still make a copy of the cartItems, but the quantity should be 1
+      setCartItems([...cartItems, {...product, qty:1}])
+    }
+  }
+
+  const removing=(product)=> {
+    //I am using the find method to search the cart array to make sure the given argument's id matches.
+    const isAvailable= cartItems.find(item=>item.id===product.id)
+    //making an if statement with the condition that if the quantity is 1
+    if(isAvailable.qty===1) {
+      //Right here, I am using the filter method to remove an item if the arguments doesn't match, 
+      //that is item.id is not strictly equal to product.id
+      setCartItems(cartItems.filter(item=>item.id!==product.id))
+    } else {
+      //if it matches here, I am using the map method to create a copy of the array and decrementing the quantity by 1
+      setCartItems(cartItems.map(item=>item.id===product.id ? {...isAvailable, qty:isAvailable.qty -1} : item))
+    }
+  }
+
 
   return (
-    <div className="App">
-      <header>
-        TODO: Nav bar in here
-      </header>
-      <main>
-        <Routes>
-          <Route path="/" element={<Products products={products} />}/>
-        </Routes>
-      </main>      
+    <div className='App'>
+    <Header></Header>
+    <div className='row'>
+      {/* I am using props to return other components here */}
+      <Main adding={adding} products={products}></Main>
+      <Basket adding={adding} removing={removing} cartItems={cartItems}></Basket>
     </div>
-  );
+    </div>
+  )
 }
 
-export default App;
+
+export default App
